@@ -32,7 +32,7 @@ app.get("/api/userlist", async (req, res) => {
 
         .query(`Select * FROM Users`)
         .then((result) => {
-          res.status(200).json({ townlist: result.recordset });
+          res.status(200).json({ userlist: result.recordset });
         })
         .catch((error) => {
           console.error(error);
@@ -51,6 +51,7 @@ app.get("/api/userlist", async (req, res) => {
 //Регистрация пользователя
 app.post("/api/users/signup", async (req, res) => {
   const { login, password } = req.body;
+  
   const hashedPassword = await bcrypt
     .hash(req.body.password, saltRounds)
     .then((hash) => {
@@ -58,7 +59,8 @@ app.post("/api/users/signup", async (req, res) => {
     })
     .catch((err) => console.error(err.message));
 
-  const pool = await sql.connect(config);
+  if(login){
+    const pool = await sql.connect(config);
   let connection = new sql.ConnectionPool(config, function (err) {
     let request = new sql.Request(connection);
     try {
@@ -86,6 +88,7 @@ app.post("/api/users/signup", async (req, res) => {
       res.status(500).json({ success: false, message: "Error adding data" });
     }
   });
+  }
 });
 
 //Авторизация пользователя
